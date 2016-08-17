@@ -173,8 +173,8 @@ namespace saar {
 			struct call_asm_args<op_type::none, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, Args&&...args) {
-					ator.push_c((unsigned char)op);
-					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ator, args...);
+					ctx.push_c((unsigned char)op);
+					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ctx, args...);
 				}
 			};
 
@@ -182,8 +182,8 @@ namespace saar {
 			struct call_asm_args<op_type::b, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, type::byte b, Args&&...args) {
-					ator.push_c(b);
-					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ator, args...);
+					ctx.push_c(b);
+					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ctx, args...);
 				}
 			};
 
@@ -191,8 +191,8 @@ namespace saar {
 			struct call_asm_args<op_type::w, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, type::word w, Args&&...args) {
-					ator.push_s(w);
-					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ator, args...);
+					ctx.push_s(w);
+					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ctx, args...);
 				}
 			};
 
@@ -200,8 +200,8 @@ namespace saar {
 			struct call_asm_args<op_type::d, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, type::dword d, Args&&...args) {
-					ator.push_l(d);
-					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ator, args...);
+					ctx.push_l(d);
+					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ctx, args...);
 				}
 			};
 
@@ -209,8 +209,8 @@ namespace saar {
 			struct call_asm_args<op_type::r, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, register_t r, Args&&...args) {
-					ator.push_c(0xC0 | (REG(op) << 3) | REG(r));
-					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ator, args...);
+					ctx.push_c(0xC0 | (REG(op) << 3) | REG(r));
+					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ctx, args...);
 				}
 			};
 
@@ -218,8 +218,8 @@ namespace saar {
 			struct call_asm_args<op_type::m, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, const memory &mem, Args&&...args) {
-					ator.push_mem(mem, (register_t)REG(op));
-					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ator, args...);
+					ctx.push_mem(mem, (register_t)REG(op));
+					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ctx, args...);
 				}
 			};
 
@@ -227,8 +227,8 @@ namespace saar {
 			struct call_asm_args<op_type::mr, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, const memory &mem, register_t reg, Args&&...args) {
-					ator.push_mem(mem, reg);
-					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ator, args...);
+					ctx.push_mem(mem, reg);
+					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ctx, args...);
 				}
 			};
 
@@ -236,8 +236,8 @@ namespace saar {
 			struct call_asm_args<op_type::rm, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, register_t reg, const memory &mem, Args&&...args) {
-					ator.push_mem(mem, reg);
-					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ator, args...);
+					ctx.push_mem(mem, reg);
+					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ctx, args...);
 				}
 			};
 
@@ -245,8 +245,8 @@ namespace saar {
 			struct call_asm_args<op_type::r2mr, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, register_t dst, register_t src, Args&&...args) {
-					ator.push_c(0xC0 | (REG(src) << 3) | REG(dst));
-					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ator, args...);
+					ctx.push_c(0xC0 | (REG(src) << 3) | REG(dst));
+					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ctx, args...);
 				}
 			};
 
@@ -254,8 +254,8 @@ namespace saar {
 			struct call_asm_args<op_type::mr2r, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, register_t dst, register_t src, Args&&...args) {
-					ator.push_c(0xC0 | (REG(dst) << 3) | REG(src));
-					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ator, args...);
+					ctx.push_c(0xC0 | (REG(dst) << 3) | REG(src));
+					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ctx, args...);
 				}
 			};
 
@@ -263,8 +263,8 @@ namespace saar {
 			struct call_asm_args<op_type::opr, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, register_t reg, Args&&...args) {
-					ator.push_c((op & 0xF8) | REG(reg));
-					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ator, args...);
+					ctx.push_c((op & 0xF8) | REG(reg));
+					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ctx, args...);
 				}
 			};
 
@@ -278,13 +278,13 @@ namespace saar {
 
 			public:
 				static void _op(context &ctx, typename optimize<Args>::type...args) {
-					call_t::_op(ator, args...);
+					call_t::_op(ctx, args...);
 				}
 
 				static size_t op(context &ctx, typename optimize<Args>::type...args) {
-					size_t count = ator.size();
-					_op(ator, args...);
-					return ator.size() - count;
+					size_t count = ctx.size();
+					_op(ctx, args...);
+					return ctx.size() - count;
 				}
 			};
 
