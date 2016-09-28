@@ -29,7 +29,7 @@ namespace saar {
 	namespace asm64 {
 		namespace build {
 
-			typedef size_t op_t;
+			typedef unsigned long op_t;
 
 			enum arg : op_t {
 				byte = 1 << 8,
@@ -38,8 +38,8 @@ namespace saar {
 				qword = 4 << 8,
 				mem = 5 << 8,
 				reg = 6 << 8,
-				mem_reg = 7 << 8,
-				reg_mem = 8 << 8,
+				reg2mem = 7 << 8,
+				mem2reg = 8 << 8,
 				reg2mreg = 9 << 8,
 				mreg2reg = 10 << 8,
 				op_reg = 11 << 8,
@@ -62,8 +62,8 @@ namespace saar {
 				q,
 				m,
 				r,
-				mr,
-				rm,
+				r2m,
+				m2r,
 				r2mr,
 				mr2r,
 				op_reg,
@@ -92,9 +92,9 @@ namespace saar {
 			template<>
 			struct sel_arg<op_type::m> { typedef asm_args<memory> type; };
 			template<>
-			struct sel_arg<op_type::mr> { typedef asm_args<memory, register_t> type; };
+			struct sel_arg<op_type::r2m> { typedef asm_args<memory, register_t> type; };
 			template<>
-			struct sel_arg<op_type::rm> { typedef asm_args<register_t, memory> type; };
+			struct sel_arg<op_type::m2r> { typedef asm_args<register_t, memory> type; };
 			template<>
 			struct sel_arg<op_type::r2mr> { typedef asm_args<register_t, register_t> type; };
 			template<>
@@ -112,8 +112,8 @@ namespace saar {
 					V == arg::qword ? (int)op_type::q :
 					(V & 0xFF00) == arg::reg ? (int)op_type::r :
 					(V & 0xFF00) == arg::mem ? (int)op_type::m :
-					V == arg::mem_reg ? (int)op_type::mr :
-					V == arg::reg_mem ? (int)op_type::rm :
+					V == arg::reg2mem ? (int)op_type::r2m :
+					V == arg::mem2reg ? (int)op_type::m2r :
 					V == arg::reg2mreg ? (int)op_type::r2mr :
 					V == arg::mreg2reg ? (int)op_type::mr2r :
 					(V & 0xFF00) == arg::op_reg ? (int)op_type::op_reg :
@@ -302,7 +302,7 @@ namespace saar {
 			};
 
 			template<op_t op, op_t...ops>
-			struct call_asm_args<op_type::mr, op, ops...> {
+			struct call_asm_args<op_type::r2m, op, ops...> {
 				template<typename...Args>
 				inline static void _op(context &ctx, const memory &mem, register_t reg, Args&&...args) {
 					ctx.set_mem_reg(mem, reg);
@@ -311,7 +311,7 @@ namespace saar {
 			};
 
 			template<op_t op, op_t...ops>
-			struct call_asm_args<op_type::rm, op, ops...> {
+			struct call_asm_args<op_type::m2r, op, ops...> {
 				template<typename...Args>
 				inline static void _op(context &ctx, register_t reg, const memory &mem, Args&&...args) {
 					ctx.set_mem_reg(mem, reg);

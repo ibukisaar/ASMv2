@@ -19,12 +19,12 @@
 	using name##_r_r8 = make_asm<rm_r8, arg::reg2mreg>;\
 	using name##_r_r16 = make_asm<0x66, rm_r32, arg::reg2mreg>;\
 	using name##_r_r32 = make_asm<rm_r32, arg::reg2mreg>;\
-	using name##_m_r8 = make_asm<rm_r8, arg::mem_reg>;\
-	using name##_m_r16 = make_asm<0x66, rm_r32, arg::mem_reg>;\
-	using name##_m_r32 = make_asm<rm_r32, arg::mem_reg>;\
-	using name##_r_m8 = make_asm<r_rm8, arg::reg_mem>;\
-	using name##_r_m16 = make_asm<0x66, r_rm32, arg::reg_mem>;\
-	using name##_r_m32 = make_asm<r_rm32, arg::reg_mem>
+	using name##_m_r8 = make_asm<rm_r8, arg::reg2mem>;\
+	using name##_m_r16 = make_asm<0x66, rm_r32, arg::reg2mem>;\
+	using name##_m_r32 = make_asm<rm_r32, arg::reg2mem>;\
+	using name##_r_m8 = make_asm<r_rm8, arg::mem2reg>;\
+	using name##_r_m16 = make_asm<0x66, r_rm32, arg::mem2reg>;\
+	using name##_r_m32 = make_asm<r_rm32, arg::mem2reg>
 
 #define def_unary_operator(name, sub_op, r)\
 	using name##_r8 = make_asm<0xFE, arg::reg | sub_op>;\
@@ -50,11 +50,11 @@
 	using name##_m16 = make_asm<0x66, 0xF7, arg::mem | sub_op>;\
 	using name##_m32 = make_asm<0xF7, arg::mem | sub_op>
 
-#define def_bit_test(name, rm, sub_op)\
-	using name##_r_r16 = make_asm<0x66, 0x0F, rm, arg::reg2mreg>;\
-	using name##_m_r16 = make_asm<0x66, 0x0F, rm, arg::mem_reg>;\
-	using name##_r_r32 = make_asm<0x0F, rm, arg::reg2mreg>;\
-	using name##_m_r32 = make_asm<0x0F, rm, arg::mem_reg>;\
+#define def_bit_test(name, m2r, sub_op)\
+	using name##_r_r16 = make_asm<0x66, 0x0F, m2r, arg::reg2mreg>;\
+	using name##_m_r16 = make_asm<0x66, 0x0F, m2r, arg::reg2mem>;\
+	using name##_r_r32 = make_asm<0x0F, m2r, arg::reg2mreg>;\
+	using name##_m_r32 = make_asm<0x0F, m2r, arg::reg2mem>;\
 	using name##_r16_i8 = make_asm<0x66, 0x0F, 0xBA, arg::reg | sub_op, arg::byte>;\
 	using name##_m16_i8 = make_asm<0x66, 0x0F, 0xBA, arg::mem | sub_op, arg::byte>;\
 	using name##_r32_i8 = make_asm<0x0F, 0xBA, arg::reg | sub_op, arg::byte>;\
@@ -89,10 +89,10 @@
 	using name##_r_r32_i8 = make_asm<0x0F, i8, arg::reg2mreg, arg::byte>;\
 	using name##_r_r16_cl = make_asm<0x66, 0x0F, cl, arg::reg2mreg>;\
 	using name##_r_r32_cl = make_asm<0x0F, cl, arg::reg2mreg>;\
-	using name##_m_r16_i8 = make_asm<0x66, 0x0F, i8, arg::mem_reg, arg::byte>;\
-	using name##_m_r32_i8 = make_asm<0x0F, i8, arg::mem_reg, arg::byte>;\
-	using name##_m_r16_cl = make_asm<0x66, 0x0F, cl, arg::mem_reg>;\
-	using name##_m_r32_cl = make_asm<0x0F, cl, arg::mem_reg>
+	using name##_m_r16_i8 = make_asm<0x66, 0x0F, i8, arg::reg2mem, arg::byte>;\
+	using name##_m_r32_i8 = make_asm<0x0F, i8, arg::reg2mem, arg::byte>;\
+	using name##_m_r16_cl = make_asm<0x66, 0x0F, cl, arg::reg2mem>;\
+	using name##_m_r32_cl = make_asm<0x0F, cl, arg::reg2mem>
 
 #define def_set(name, op)\
 	using name##_r = make_asm<0x0F, op, arg::reg>;\
@@ -101,8 +101,8 @@
 #define def_cmov(name, op)\
 	using name##_r_r16 = make_asm<0x66, 0x0F, op, arg::mreg2reg>;\
 	using name##_r_r32 = make_asm<0x0F, op, arg::mreg2reg>;\
-	using name##_r_m16 = make_asm<0x66, 0x0F, op, arg::reg_mem>;\
-	using name##_r_m32 = make_asm<0x0F, op, arg::reg_mem>
+	using name##_r_m16 = make_asm<0x66, 0x0F, op, arg::mem2reg>;\
+	using name##_r_m32 = make_asm<0x0F, op, arg::mem2reg>
 
 namespace saar {
 	namespace asm32 {
@@ -120,22 +120,22 @@ namespace saar {
 			def_binary_operator(and, 0x24, 0x25, 4, 0x20, 0x21, 0x22, 0x23);
 
 			using arpl_r_r = make_asm<0x63, arg::reg2mreg>;
-			using arpl_m_r = make_asm<0x63, arg::mem_reg>;
+			using arpl_m_r = make_asm<0x63, arg::reg2mem>;
 
 			using bound_r_r16 = make_asm<0x66, 0x62, arg::mreg2reg>;
-			using bound_r_m16 = make_asm<0x66, 0x62, arg::reg_mem>;
+			using bound_r_m16 = make_asm<0x66, 0x62, arg::mem2reg>;
 			using bound_r_r32 = make_asm<0x62, arg::mreg2reg>;
-			using bound_r_m32 = make_asm<0x62, arg::reg_mem>;
+			using bound_r_m32 = make_asm<0x62, arg::mem2reg>;
 
 			using bsf_r_r16 = make_asm<0x66, 0xF0, 0xBC, arg::mreg2reg>;
-			using bsf_r_m16 = make_asm<0x66, 0xF0, 0xBC, arg::reg_mem>;
+			using bsf_r_m16 = make_asm<0x66, 0xF0, 0xBC, arg::mem2reg>;
 			using bsf_r_r32 = make_asm<0xF0, 0xBC, arg::mreg2reg>;
-			using bsf_r_m32 = make_asm<0xF0, 0xBC, arg::reg_mem>;
+			using bsf_r_m32 = make_asm<0xF0, 0xBC, arg::mem2reg>;
 
 			using bsr_r_r16 = make_asm<0x66, 0x0F, 0xBD, arg::mreg2reg>;
-			using bsr_r_m16 = make_asm<0x66, 0x0F, 0xBD, arg::reg_mem>;
+			using bsr_r_m16 = make_asm<0x66, 0x0F, 0xBD, arg::mem2reg>;
 			using bsr_r_r32 = make_asm<0x0F, 0xBD, arg::mreg2reg>;
-			using bsr_r_m32 = make_asm<0x0F, 0xBD, arg::reg_mem>;
+			using bsr_r_m32 = make_asm<0x0F, 0xBD, arg::mem2reg>;
 
 			def_bit_test(bt, 0xA3, 4);
 			def_bit_test(btc, 0xBB, 7);
@@ -196,9 +196,9 @@ namespace saar {
 			using cmpxchg_r8_r8 = make_asm<0x0F, 0xB0, arg::reg2mreg>;
 			using cmpxchg_r16_r16 = make_asm<0x66, 0x0F, 0xB1, arg::reg2mreg>;
 			using cmpxchg_r32_r32 = make_asm<0x0F, 0xB1, arg::reg2mreg>;
-			using cmpxchg_m8_r8 = make_asm<0x0F, 0xB0, arg::mem_reg>;
-			using cmpxchg_m16_r16 = make_asm<0x66, 0x0F, 0xB1, arg::mem_reg>;
-			using cmpxchg_m32_r32 = make_asm<0x0F, 0xB1, arg::mem_reg>;
+			using cmpxchg_m8_r8 = make_asm<0x0F, 0xB0, arg::reg2mem>;
+			using cmpxchg_m16_r16 = make_asm<0x66, 0x0F, 0xB1, arg::reg2mem>;
+			using cmpxchg_m32_r32 = make_asm<0x0F, 0xB1, arg::reg2mem>;
 
 			using cmpxchg8b_m64 = make_asm<0x0F, 0xC7, arg::mem | 1>;
 
@@ -222,16 +222,16 @@ namespace saar {
 			def_al_ax_eax_operator(imul, 5);
 			using imul_r_r16 = make_asm<0x66, 0x0F, 0xAF, arg::mreg2reg>;
 			using imul_r_r32 = make_asm<0x0F, 0xAF, arg::mreg2reg>;
-			using imul_r_m16 = make_asm<0x66, 0x0F, 0xAF, arg::reg_mem>;
-			using imul_r_m32 = make_asm<0x0F, 0xAF, arg::reg_mem>;
+			using imul_r_m16 = make_asm<0x66, 0x0F, 0xAF, arg::mem2reg>;
+			using imul_r_m32 = make_asm<0x0F, 0xAF, arg::mem2reg>;
 			using imul_r_r16_i8 = make_asm<0x66, 0x6B, arg::mreg2reg, arg::byte>;
 			using imul_r_r32_i8 = make_asm<0x6B, arg::mreg2reg, arg::byte>;
-			using imul_r_m16_i8 = make_asm<0x66, 0x6B, arg::mem_reg, arg::byte>;
-			using imul_r_m32_i8 = make_asm<0x6B, arg::mem_reg, arg::byte>;
+			using imul_r_m16_i8 = make_asm<0x66, 0x6B, arg::reg2mem, arg::byte>;
+			using imul_r_m32_i8 = make_asm<0x6B, arg::reg2mem, arg::byte>;
 			using imul_r_r16_i16 = make_asm<0x66, 0x69, arg::mreg2reg, arg::word>;
 			using imul_r_r32_i32 = make_asm<0x69, arg::mreg2reg, arg::dword>;
-			using imul_r_m16_i16 = make_asm<0x66, 0x69, arg::mem_reg, arg::word>;
-			using imul_r_m32_i32 = make_asm<0x69, arg::mem_reg, arg::dword>;
+			using imul_r_m16_i16 = make_asm<0x66, 0x69, arg::reg2mem, arg::word>;
+			using imul_r_m32_i32 = make_asm<0x69, arg::reg2mem, arg::dword>;
 
 			using in_al = make_asm<0xE4, arg::byte>;
 			using in_ax = make_asm<0x66, 0xE5, arg::byte>;
@@ -297,12 +297,12 @@ namespace saar {
 			using lahf = make_asm<0x9F>;
 
 			using lar_r_r16 = make_asm<0x66, 0x0F, 0x02, arg::mreg2reg>;
-			using lar_r_m16 = make_asm<0x66, 0x0F, 0x02, arg::reg_mem>;
+			using lar_r_m16 = make_asm<0x66, 0x0F, 0x02, arg::mem2reg>;
 			using lar_r_r32 = make_asm<0x0F, 0x02, arg::mreg2reg>;
-			using lar_r_m32 = make_asm<0x0F, 0x02, arg::reg_mem>;
+			using lar_r_m32 = make_asm<0x0F, 0x02, arg::mem2reg>;
 
-			using lea_r_m16 = make_asm<0x66, 0x8D, arg::reg_mem>;
-			using lea_r_m32 = make_asm<0x8D, arg::reg_mem>;
+			using lea_r_m16 = make_asm<0x66, 0x8D, arg::mem2reg>;
+			using lea_r_m32 = make_asm<0x8D, arg::mem2reg>;
 
 			using leave_16 = make_asm<0x66, 0xC9>;
 			using leave_32 = make_asm<0xC9>;
@@ -310,16 +310,16 @@ namespace saar {
 			using lgdt = make_asm<0x0F, 0x01, arg::mem | 2>;
 			using lidt = make_asm<0x0F, 0x01, arg::mem | 3>;
 
-			using lds_r_m16 = make_asm<0x66, 0xC5, arg::reg_mem>;
-			using lds_r_m32 = make_asm<0xC5, arg::reg_mem>;
-			using lss_r_m16 = make_asm<0x66, 0x0F, 0xB2, arg::reg_mem>;
-			using lss_r_m32 = make_asm<0x0F, 0xB2, arg::reg_mem>;
-			using les_r_m16 = make_asm<0x66, 0xC4, arg::reg_mem>;
-			using les_r_m32 = make_asm<0xC4, arg::reg_mem>;
-			using lfs_r_m16 = make_asm<0x66, 0x0F, 0xB4, arg::reg_mem>;
-			using lfs_r_m32 = make_asm<0x0F, 0xB4, arg::reg_mem>;
-			using lgs_r_m16 = make_asm<0x66, 0x0F, 0xB5, arg::reg_mem>;
-			using lgs_r_m32 = make_asm<0x0F, 0xB5, arg::reg_mem>;
+			using lds_r_m16 = make_asm<0x66, 0xC5, arg::mem2reg>;
+			using lds_r_m32 = make_asm<0xC5, arg::mem2reg>;
+			using lss_r_m16 = make_asm<0x66, 0x0F, 0xB2, arg::mem2reg>;
+			using lss_r_m32 = make_asm<0x0F, 0xB2, arg::mem2reg>;
+			using les_r_m16 = make_asm<0x66, 0xC4, arg::mem2reg>;
+			using les_r_m32 = make_asm<0xC4, arg::mem2reg>;
+			using lfs_r_m16 = make_asm<0x66, 0x0F, 0xB4, arg::mem2reg>;
+			using lfs_r_m32 = make_asm<0x0F, 0xB4, arg::mem2reg>;
+			using lgs_r_m16 = make_asm<0x66, 0x0F, 0xB5, arg::mem2reg>;
+			using lgs_r_m32 = make_asm<0x0F, 0xB5, arg::mem2reg>;
 
 			using lldt_r = make_asm<0x0F, 0x00, arg::reg | 2>;
 			using lldt_m = make_asm<0x0F, 0x00, arg::mem | 2>;
@@ -340,8 +340,8 @@ namespace saar {
 
 			using lsl_r_r16 = make_asm<0x66, 0x0F, 0x03, arg::mreg2reg>;
 			using lsl_r_r32 = make_asm<0x0F, 0x03, arg::mreg2reg>;
-			using lsl_r_m16 = make_asm<0x66, 0x0F, 0x03, arg::mem_reg>;
-			using lsl_r_m32 = make_asm<0x0F, 0x03, arg::mem_reg>;
+			using lsl_r_m16 = make_asm<0x66, 0x0F, 0x03, arg::reg2mem>;
+			using lsl_r_m32 = make_asm<0x0F, 0x03, arg::reg2mem>;
 
 			using ltr_r = make_asm<0x0F, 0x00, arg::reg | 3>;
 			using ltr_m = make_asm<0x0F, 0x00, arg::mem | 3>;
@@ -349,16 +349,16 @@ namespace saar {
 			using mov_r_r8 = make_asm<0x88, arg::reg2mreg>;
 			using mov_r_r16 = make_asm<0x66, 0x89, arg::reg2mreg>;
 			using mov_r_r32 = make_asm<0x89, arg::reg2mreg>;
-			using mov_m_r8 = make_asm<0x88, arg::mem_reg>;
-			using mov_m_r16 = make_asm<0x66, 0x89, arg::mem_reg>;
-			using mov_m_r32 = make_asm<0x89, arg::mem_reg>;
-			using mov_r_m8 = make_asm<0x8A, arg::reg_mem>;
-			using mov_r_m16 = make_asm<0x66, 0x8B, arg::reg_mem>;
-			using mov_r_m32 = make_asm<0x8B, arg::reg_mem>;
+			using mov_m_r8 = make_asm<0x88, arg::reg2mem>;
+			using mov_m_r16 = make_asm<0x66, 0x89, arg::reg2mem>;
+			using mov_m_r32 = make_asm<0x89, arg::reg2mem>;
+			using mov_r_m8 = make_asm<0x8A, arg::mem2reg>;
+			using mov_r_m16 = make_asm<0x66, 0x8B, arg::mem2reg>;
+			using mov_r_m32 = make_asm<0x8B, arg::mem2reg>;
 			using mov_r_seg = make_asm<0x8C, arg::reg2mreg>;
-			using mov_m_seg = make_asm<0x8C, arg::mem_reg>;
+			using mov_m_seg = make_asm<0x8C, arg::reg2mem>;
 			using mov_seg_r = make_asm<0x8D, arg::mreg2reg>;
-			using mov_seg_m = make_asm<0x8D, arg::mem_reg>;
+			using mov_seg_m = make_asm<0x8D, arg::reg2mem>;
 			using mov_al_moffs = make_asm<0xA0, arg::dword>;
 			using mov_ax_moffs = make_asm<0x66, 0xA1, arg::dword>;
 			using mov_eax_moffs = make_asm<0xA1, arg::dword>;
@@ -377,10 +377,10 @@ namespace saar {
 			using mov_r_dr = make_asm<0x0F, 0x21, arg::reg2mreg>;
 			using mov_dr_r = make_asm<0x0F, 0x23, arg::mreg2reg>;
 
-			using movbe_r_m16 = make_asm<0x66, 0x0F, 0x38, 0xF0, arg::reg_mem>;
-			using movbe_r_m32 = make_asm<0x0F, 0x38, 0xF0, arg::reg_mem>;
-			using movbe_m_r16 = make_asm<0x66, 0x0F, 0x38, 0xF1, arg::mem_reg>;
-			using movbe_m_r32 = make_asm<0x0F, 0x38, 0xF1, arg::mem_reg>;
+			using movbe_r_m16 = make_asm<0x66, 0x0F, 0x38, 0xF0, arg::mem2reg>;
+			using movbe_r_m32 = make_asm<0x0F, 0x38, 0xF0, arg::mem2reg>;
+			using movbe_m_r16 = make_asm<0x66, 0x0F, 0x38, 0xF1, arg::reg2mem>;
+			using movbe_m_r32 = make_asm<0x0F, 0x38, 0xF1, arg::reg2mem>;
 
 			using movsb = make_asm<0xA4>;
 			using movsw = make_asm<0x66, 0xA5>;
@@ -389,16 +389,16 @@ namespace saar {
 			using movsx_r16_r8 = make_asm<0x66, 0x0F, 0xBE, arg::mreg2reg>;
 			using movsx_r32_r8 = make_asm<0x0F, 0xBE, arg::mreg2reg>;
 			using movsx_r32_r16 = make_asm<0x0F, 0xBF, arg::mreg2reg>;
-			using movsx_r16_m8 = make_asm<0x66, 0x0F, 0xBE, arg::reg_mem>;
-			using movsx_r32_m8 = make_asm<0x0F, 0xBE, arg::reg_mem>;
-			using movsx_r32_m16 = make_asm<0x0F, 0xBF, arg::reg_mem>;
+			using movsx_r16_m8 = make_asm<0x66, 0x0F, 0xBE, arg::mem2reg>;
+			using movsx_r32_m8 = make_asm<0x0F, 0xBE, arg::mem2reg>;
+			using movsx_r32_m16 = make_asm<0x0F, 0xBF, arg::mem2reg>;
 
 			using movzx_r16_r8 = make_asm<0x66, 0x0F, 0xB6, arg::mreg2reg>;
 			using movzx_r32_r8 = make_asm<0x0F, 0xB6, arg::mreg2reg>;
 			using movzx_r32_r16 = make_asm<0x0F, 0xB7, arg::mreg2reg>;
-			using movzx_r16_m8 = make_asm<0x66, 0x0F, 0xB6, arg::reg_mem>;
-			using movzx_r32_m8 = make_asm<0x0F, 0xB6, arg::reg_mem>;
-			using movzx_r32_m16 = make_asm<0x0F, 0xB7, arg::reg_mem>;
+			using movzx_r16_m8 = make_asm<0x66, 0x0F, 0xB6, arg::mem2reg>;
+			using movzx_r32_m8 = make_asm<0x0F, 0xB6, arg::mem2reg>;
+			using movzx_r32_m16 = make_asm<0x0F, 0xB7, arg::mem2reg>;
 
 			def_al_ax_eax_operator(mul, 4);
 			def_not_neg(neg, 3);
@@ -553,9 +553,9 @@ namespace saar {
 			using test_r_r8 = make_asm<0x84, arg::reg2mreg>;
 			using test_r_r16 = make_asm<0x66, 0x85, arg::reg2mreg>;
 			using test_r_r32 = make_asm<0x85, arg::reg2mreg>;
-			using test_m_r8 = make_asm<0x84, arg::mem_reg>;
-			using test_m_r16 = make_asm<0x66, 0x85, arg::mem_reg>;
-			using test_m_r32 = make_asm<0x85, arg::mem_reg>;
+			using test_m_r8 = make_asm<0x84, arg::reg2mem>;
+			using test_m_r16 = make_asm<0x66, 0x85, arg::reg2mem>;
+			using test_m_r32 = make_asm<0x85, arg::reg2mem>;
 
 			using verr_r = make_asm<0x0F, 0x00, arg::reg | 4>;
 			using verr_m = make_asm<0x0F, 0x00, arg::mem | 4>;
@@ -569,9 +569,9 @@ namespace saar {
 			using xchg_r_r8 = make_asm<0x86, arg::reg2mreg>;
 			using xchg_r_r16 = make_asm<0x66, 0x87, arg::reg2mreg>;
 			using xchg_r_r32 = make_asm<0x87, arg::reg2mreg>;
-			using xchg_m_r8 = make_asm<0x86, arg::mem_reg>;
-			using xchg_m_r16 = make_asm<0x66, 0x87, arg::mem_reg>;
-			using xchg_m_r32 = make_asm<0x87, arg::mem_reg>;
+			using xchg_m_r8 = make_asm<0x86, arg::reg2mem>;
+			using xchg_m_r16 = make_asm<0x66, 0x87, arg::reg2mem>;
+			using xchg_m_r32 = make_asm<0x87, arg::reg2mem>;
 
 			using xlat = make_asm<0xD7>;
 

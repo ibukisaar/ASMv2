@@ -21,7 +21,7 @@ namespace saar {
 
 			union {
 				struct {
-					byte rm : 3;
+					byte m2r : 3;
 					byte reg : 3;
 					byte mod : 2;
 				};
@@ -125,7 +125,7 @@ namespace saar {
 			}
 
 			inline bool has_sib() const {
-				return mod != 0b11 && rm == 0b100;
+				return mod != 0b11 && m2r == 0b100;
 			}
 
 			inline int byte_size() const {

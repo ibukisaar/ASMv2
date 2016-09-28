@@ -1,35 +1,24 @@
 #include <stdio.h>
+
+#ifndef _WIN64
 #include "saar\asm32\asm.h"
 #include "saar\asm32\runner.h"
-//#include "saar\asm64\asm.h"
-//#include "saar\asm64\runner.h"
-#include <iostream>
-#include <memory>
-#include <type_traits>
 
-using namespace std;
 using namespace saar::asm32;
 using namespace saar::asm32::instruction;
-//using namespace saar::asm64;
-//using namespace saar::asm64::instruction;
+#else
+#include "saar\asm64\asm.h"
+#include "saar\asm64\runner.h"
+
+using namespace saar::asm64;
+using namespace saar::asm64::instruction;
+#endif
 
 int main() {
+#ifndef _WIN64
 	context ctx;
 
-	//make_asm<0x40 | asm_t::op_reg>::op(a, EAX);
-	//make_asm<0x81, asm_t::reg, asm_t::dword>::op(a, EAX, 0);
-	//make_asm<0x80, asm_t::mem | 0, asm_t::byte>::op(a, memory(EAX), 0);
-	//make_asm<0x01, asm_t::mreg2reg>::op(a, EAX, ECX);
-	//make_asm<0xF0>::op(a);
-	//saar_asm::adc_al_i8::op(a, 0);
-	/*saar_asm::mov_r_r32::op(a, ECX, EAX);
-	saar_asm::mov_cr_r::op(a, (register_t)cr_t::cr1, EAX);
-	saar_asm::movsx_r16_r8::op(a, CX, AL);
-	saar_asm::xchg_r_r8::op(a, CL, AL);
-	saar_asm::cmp_r_m32::op(a, memory(0), EAX);*/
-
 	int a = 123;
-
 	lea_r_m32::op(ctx, EAX, a);
 	push_m32::op(ctx, memory(EAX));
 	push_i32::op(ctx, "%d\n");
@@ -37,7 +26,8 @@ int main() {
 	call_r::op(ctx, EAX);
 	add_r_i32::op(ctx, ESP, 8);
 	ret::op(ctx);
-	runner::call(ctx);
 
+	runner::call(ctx);
+#endif
 	return 0;
 }

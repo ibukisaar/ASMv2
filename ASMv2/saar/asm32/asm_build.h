@@ -29,7 +29,7 @@ namespace saar {
 	namespace asm32 {
 		namespace build {
 
-			typedef size_t op_t;
+			typedef unsigned long op_t;
 
 			enum arg : op_t {
 				byte = 1 << 8,
@@ -37,8 +37,8 @@ namespace saar {
 				dword = 3 << 8,
 				mem = 4 << 8,
 				reg = 5 << 8,
-				mem_reg = 6 << 8,
-				reg_mem = 7 << 8,
+				reg2mem = 6 << 8,
+				mem2reg = 7 << 8,
 				reg2mreg = 8 << 8,
 				mreg2reg = 9 << 8,
 				op_reg = 10 << 8,
@@ -51,15 +51,15 @@ namespace saar {
 				d,
 				m,
 				r,
-				mr,
-				rm,
+				r2m,
+				m2r,
 				r2mr,
 				mr2r,
 				opr,
 			};
 
 			template<typename...Args>
-			struct asm_args {};
+			struct asm_args { };
 
 			template<int value>
 			struct sel_arg { typedef asm_args<> type; };
@@ -74,9 +74,9 @@ namespace saar {
 			template<>
 			struct sel_arg<op_type::m> { typedef asm_args<memory> type; };
 			template<>
-			struct sel_arg<op_type::mr> { typedef asm_args<memory, register_t> type; };
+			struct sel_arg<op_type::r2m> { typedef asm_args<memory, register_t> type; };
 			template<>
-			struct sel_arg<op_type::rm> { typedef asm_args<register_t, memory> type; };
+			struct sel_arg<op_type::m2r> { typedef asm_args<register_t, memory> type; };
 			template<>
 			struct sel_arg<op_type::r2mr> { typedef asm_args<register_t, register_t> type; };
 			template<>
@@ -93,8 +93,8 @@ namespace saar {
 					V == arg::dword ? op_type::d :
 					(V & 0xFF00) == arg::reg ? op_type::r :
 					(V & 0xFF00) == arg::mem ? op_type::m :
-					V == arg::mem_reg ? op_type::mr :
-					V == arg::reg_mem ? op_type::rm :
+					V == arg::reg2mem ? op_type::r2m :
+					V == arg::mem2reg ? op_type::m2r :
 					V == arg::reg2mreg ? op_type::r2mr :
 					V == arg::mreg2reg ? op_type::mr2r :
 					(V & 0xFF00) == arg::op_reg ? op_type::opr :
@@ -173,7 +173,7 @@ namespace saar {
 			struct call_asm_args<op_type::none, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, Args&&...args) {
-					ctx.push_c((unsigned char)op);
+					ctx.push_c((unsigned char) op);
 					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ctx, args...);
 				}
 			};
@@ -218,13 +218,13 @@ namespace saar {
 			struct call_asm_args<op_type::m, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, const memory &mem, Args&&...args) {
-					ctx.push_mem(mem, (register_t)REG(op));
+					ctx.push_mem(mem, (register_t) REG(op));
 					make_asm_args<asm_args<typename remove_const_ref<Args>::type...>, ops...>::_op(ctx, args...);
 				}
 			};
 
 			template<op_t op, op_t...ops>
-			struct call_asm_args<op_type::mr, op, ops...> {
+			struct call_asm_args<op_type::r2m, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, const memory &mem, register_t reg, Args&&...args) {
 					ctx.push_mem(mem, reg);
@@ -233,7 +233,7 @@ namespace saar {
 			};
 
 			template<op_t op, op_t...ops>
-			struct call_asm_args<op_type::rm, op, ops...> {
+			struct call_asm_args<op_type::m2r, op, ops...> {
 				template<typename...Args>
 				static void _op(context &ctx, register_t reg, const memory &mem, Args&&...args) {
 					ctx.push_mem(mem, reg);
@@ -290,12 +290,11 @@ namespace saar {
 
 			template<>
 			struct make_asm_args<asm_args<>> {
-				static void _op(context &ctx) {
-				}
+				static void _op(context &ctx) { }
 			};
 
 			template<op_t...ops>
-			struct make_asm : make_asm_args<typename make_args<ops...>::type, ops...> {};
+			struct make_asm : make_asm_args<typename make_args<ops...>::type, ops...> { };
 		}
 	}
 }
